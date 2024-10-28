@@ -2,6 +2,17 @@
 
 WallCartoon is a Flutter application that allows users to discover and download their desired wallpapers effortlessly. With a sleek and user-friendly interface, WallCartoon provides a seamless experience for wallpaper enthusiasts.
 
+## Screenshots
+
+## Screenshots
+
+Here are some screenshots of the WallCartoon app:
+
+| ![Splash Screen](Screenshot_20241028-010329.png) | ![Home Screen](Screenshot_20241028-010253.png) |
+|:--:|:--:|
+| *Splash Screen* | *Home Screen* |
+| ![Wallpaper Detail](Screenshot_20241028-010339.png) |![Download Confirmation](Screenshot_20241028-010358.png)|
+| *Wallpaper Detail view* | *Download Screen* |
 ## Features
 
 - **User-Friendly Interface**: Simple and intuitive navigation for users to browse wallpapers easily.
