@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "986437984520",
+    "project_id": "download-wallpaper-a9592",
+    "storage_bucket": "download-wallpaper-a9592.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:986437984520:android:1e2f47c76c3ac173c60cbd",
+        "android_client_info": {
+          "package_name": "com.hasanur.download_wallpaper"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC2hCCI2rgTjaJr18hpdeBM33FJavFVjzE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
