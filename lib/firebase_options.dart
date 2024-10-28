@@ -41,48 +41,49 @@ class DefaultFirebaseOptions {
   }
 
   static const FirebaseOptions web = FirebaseOptions(
-    apiKey: 'AIzaSyDoJGepOgOnRBF1rH5Hni2Iputp0US-7WM',
-    appId: '1:986437984520:web:42ad76192b3e196bc60cbd',
-    messagingSenderId: '986437984520',
-    projectId: 'download-wallpaper-a9592',
-    authDomain: 'download-wallpaper-a9592.firebaseapp.com',
-    storageBucket: 'download-wallpaper-a9592.appspot.com',
-    measurementId: 'G-6XMB38595N',
+    apiKey: 'AIzaSyBkBbDiM87hyJj5bqBOgdUPc8MLOtpHQkU',
+    appId: '1:832257314194:web:aed070115a9a8bc90d454b',
+    messagingSenderId: '832257314194',
+    projectId: 'walls-cartoon',
+    authDomain: 'walls-cartoon.firebaseapp.com',
+    storageBucket: 'walls-cartoon.appspot.com',
+    measurementId: 'G-8JDEKVMXKP',
   );
 
   static const FirebaseOptions android = FirebaseOptions(
-    apiKey: 'AIzaSyC2hCCI2rgTjaJr18hpdeBM33FJavFVjzE',
-    appId: '1:986437984520:android:1e2f47c76c3ac173c60cbd',
-    messagingSenderId: '986437984520',
-    projectId: 'download-wallpaper-a9592',
-    storageBucket: 'download-wallpaper-a9592.appspot.com',
+    apiKey: 'AIzaSyDqyVHQhpzMcPFFONjUwF74EPS-xiXfrDU',
+    appId: '1:832257314194:android:ffaf8b7cd4e5fb2c0d454b',
+    messagingSenderId: '832257314194',
+    projectId: 'walls-cartoon',
+    storageBucket: 'walls-cartoon.appspot.com',
   );
 
   static const FirebaseOptions ios = FirebaseOptions(
-    apiKey: 'AIzaSyBffsi8ufAUsaJDUzGiiCvB6NopLbb_9RM',
-    appId: '1:986437984520:ios:68d2b03e81587531c60cbd',
-    messagingSenderId: '986437984520',
-    projectId: 'download-wallpaper-a9592',
-    storageBucket: 'download-wallpaper-a9592.appspot.com',
+    apiKey: 'AIzaSyCndiQUsgN--4mInjbU_49nm4ERXiAmrSc',
+    appId: '1:832257314194:ios:b80e99b2b87686d40d454b',
+    messagingSenderId: '832257314194',
+    projectId: 'walls-cartoon',
+    storageBucket: 'walls-cartoon.appspot.com',
     iosBundleId: 'com.hasanur.downloadWallpaper',
   );
 
   static const FirebaseOptions macos = FirebaseOptions(
-    apiKey: 'AIzaSyBffsi8ufAUsaJDUzGiiCvB6NopLbb_9RM',
-    appId: '1:986437984520:ios:68d2b03e81587531c60cbd',
-    messagingSenderId: '986437984520',
-    projectId: 'download-wallpaper-a9592',
-    storageBucket: 'download-wallpaper-a9592.appspot.com',
+    apiKey: 'AIzaSyCndiQUsgN--4mInjbU_49nm4ERXiAmrSc',
+    appId: '1:832257314194:ios:b80e99b2b87686d40d454b',
+    messagingSenderId: '832257314194',
+    projectId: 'walls-cartoon',
+    storageBucket: 'walls-cartoon.appspot.com',
     iosBundleId: 'com.hasanur.downloadWallpaper',
   );
 
   static const FirebaseOptions windows = FirebaseOptions(
-    apiKey: 'AIzaSyDoJGepOgOnRBF1rH5Hni2Iputp0US-7WM',
-    appId: '1:986437984520:web:aa53476c95aa79d3c60cbd',
-    messagingSenderId: '986437984520',
-    projectId: 'download-wallpaper-a9592',
-    authDomain: 'download-wallpaper-a9592.firebaseapp.com',
-    storageBucket: 'download-wallpaper-a9592.appspot.com',
-    measurementId: 'G-LDTEMYB96T',
+    apiKey: 'AIzaSyBkBbDiM87hyJj5bqBOgdUPc8MLOtpHQkU',
+    appId: '1:832257314194:web:332c94fdea67fa970d454b',
+    messagingSenderId: '832257314194',
+    projectId: 'walls-cartoon',
+    authDomain: 'walls-cartoon.firebaseapp.com',
+    storageBucket: 'walls-cartoon.appspot.com',
+    measurementId: 'G-8HL83328R5',
   );
+
 }

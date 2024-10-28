@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<config>
+    <app>
+        <id>com.yourcompany.yourapp</id>
+        <name>Your App Name</name>
+        <link>https://play.google.com/store/apps/details?id=com.yourcompany.yourapp</link>
+    </app>
+</config>

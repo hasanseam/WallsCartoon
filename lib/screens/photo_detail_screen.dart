@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:fl_downloader/fl_downloader.dart';
 import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:share_plus/share_plus.dart';
 
 class PhotoDetailScreen extends StatefulWidget {
   final String imageUrl;
@@ -198,9 +199,7 @@ class _PhotoDetailScreenState extends State<PhotoDetailScreen> {
           ),
           onPressed: () {
             // Implement your share functionality here
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text('Share button pressed!')),
-            );
+            Share.share('Check out this wallpaper: ${widget.imageUrl}');
           },
         ),
       ],

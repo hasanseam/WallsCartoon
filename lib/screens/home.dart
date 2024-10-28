@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:firebase_storage/firebase_storage.dart';
+import 'package:share_plus/share_plus.dart';
+import '../config.dart';
 import 'photo_detail_screen.dart';  // Import the new file
 
 class HomeScreen extends StatefulWidget {
@@ -68,6 +70,7 @@ class _HomeScreenState extends State<HomeScreen> {
       ) ,
             onPressed: () {
               // Implement your share functionality here
+              Share.share("Check out this awesome app: https://play.google.com/store/apps/details?id=com.yourcompany.yourapp");
               // For example, you might use the share package to share the current content
             },
           ),

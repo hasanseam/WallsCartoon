@@ -1,13 +1,13 @@
 {
   "project_info": {
-    "project_number": "986437984520",
-    "project_id": "download-wallpaper-a9592",
-    "storage_bucket": "download-wallpaper-a9592.appspot.com"
+    "project_number": "832257314194",
+    "project_id": "walls-cartoon",
+    "storage_bucket": "walls-cartoon.appspot.com"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:986437984520:android:1e2f47c76c3ac173c60cbd",
+        "mobilesdk_app_id": "1:832257314194:android:ffaf8b7cd4e5fb2c0d454b",
         "android_client_info": {
           "package_name": "com.hasanur.download_wallpaper"
         }
@@ -15,7 +15,7 @@
       "oauth_client": [],
       "api_key": [
         {
-          "current_key": "AIzaSyC2hCCI2rgTjaJr18hpdeBM33FJavFVjzE"
+          "current_key": "AIzaSyDqyVHQhpzMcPFFONjUwF74EPS-xiXfrDU"
         }
       ],
       "services": {
