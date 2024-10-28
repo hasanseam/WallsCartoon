@@ -32,7 +32,7 @@ class _PhotoDetailScreenState extends State<PhotoDetailScreen> {
         // Simulate a download delay for testing
         await Future.delayed(Duration(seconds: _totalActionTimeInSeconds));
         // Uncomment the next line when you're ready for actual download
-        // await FlDownloader.download(url);
+        await FlDownloader.download(url);
 
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Download completed!')),
@@ -75,6 +75,10 @@ class _PhotoDetailScreenState extends State<PhotoDetailScreen> {
 
   @override
   Widget build(BuildContext context) {
+    // Get screen dimensions
+    final screenSize = MediaQuery.of(context).size;
+    final isLandscape = screenSize.width > screenSize.height;
+
     return Scaffold(
       body: Stack(
         children: [
@@ -87,52 +91,64 @@ class _PhotoDetailScreenState extends State<PhotoDetailScreen> {
             height: double.infinity,
             width: double.infinity,
           ),
-          // Gradient overlay at the top
-          Container(
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                colors: [
-                  Colors.black.withOpacity(0.9), // Darker color at the top
-                  Colors.black.withOpacity(0.4), // Lighter color at the middle
-                  Colors.transparent, // Fully transparent in the center
-                ],
-                stops: [0.0, 0.5, 0.75], // Stops to control fade
-                begin: Alignment.topCenter,
-                end: Alignment.center, // Fade from top to center
+          // Top gradient overlay
+          Positioned.fill(
+            child: Align(
+              alignment: Alignment.topCenter,
+              child: Container(
+                height: screenSize.height * 0.4,
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [
+                      Colors.black.withOpacity(0.8),
+                      Colors.black.withOpacity(0.4),
+                      Colors.transparent,
+                    ],
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                    stops: [0.0, 0.5, 1.0],
+                  ),
+                ),
               ),
             ),
           ),
-          // Gradient overlay at the bottom
-          Container(
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                colors: [
-                  Colors.transparent, // Fully transparent in the middle
-                  Colors.black.withOpacity(0.4), // Lighter color at the middle
-                  Colors.black.withOpacity(0.9), // Darker color at the bottom
-                ],
-                stops: [0.0, 0.25, 1.0], // Stops to control fade
-                begin: Alignment.center,
-                end: Alignment.bottomCenter, // Fade from center to bottom
+          // Bottom gradient overlay
+          Positioned.fill(
+            child: Align(
+              alignment: Alignment.bottomCenter,
+              child: Container(
+                height: screenSize.height * 0.4,
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [
+                      Colors.transparent,
+                      Colors.black.withOpacity(0.4),
+                      Colors.black.withOpacity(0.8),
+                    ],
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                    stops: [0.0, 0.5, 1.0],
+                  ),
+                ),
               ),
             ),
           ),
           Positioned(
-            top: 40,
+            top: isLandscape ? 20 : 40,
             left: 20,
             child: IconButton(
               icon: CircleAvatar(
-                backgroundColor: Color(0xFF74625E), // Background color of the arrow button
-                radius: 25, // Adjust the radius as needed
+                backgroundColor: Color(0xFF74625E),
+                radius: 25,
                 child: Image.asset(
-                  'assets/arrow_icon.png', // Set your arrow icon image here
-                  height: 24.0, // Set height of the icon
-                  width: 24.0, // Set width of the icon
+                  'assets/arrow_icon.png',
+                  height: 24.0,
+                  width: 24.0,
                 ),
               ),
-              onPressed: (){
+              onPressed: () {
                 Navigator.pop(context);
-              }, // Call the share function
+              },
             ),
           ),
           // Overlay with buttons
@@ -142,20 +158,20 @@ class _PhotoDetailScreenState extends State<PhotoDetailScreen> {
             right: 20,
             child: _isDownloading
                 ? _buildProgressButton() // Show progress button while downloading
-                : _buildButtons(), // Show buttons when not downloading
+                : _buildButtons(screenSize), // Show buttons when not downloading
           ),
         ],
       ),
     );
   }
 
-  Widget _buildButtons() {
+  Widget _buildButtons(Size screenSize) {
     return Row(
-      mainAxisAlignment: MainAxisAlignment.center, // Center the buttons
+      mainAxisAlignment: MainAxisAlignment.center,
       children: [
         // Download Button
         Container(
-          width: 290, // Set the width of the download button
+          width: screenSize.width * 0.6, // Responsive width
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 20.0),
             child: ElevatedButton(
@@ -164,41 +180,40 @@ class _PhotoDetailScreenState extends State<PhotoDetailScreen> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Image.asset(
-                    'assets/download_icon.png', // Set your download icon image here
-                    height: 24.0, // Set height of the icon
-                    width: 24.0, // Set width of the icon
+                    'assets/download_icon.png',
+                    height: 24.0,
+                    width: 24.0,
                   ),
-                  SizedBox(width: 16.0), // Space between icon and text
+                  SizedBox(width: 16.0),
                   Text(
                     'Download',
                     style: TextStyle(
                       color: Color(0xFF971C1C),
                       fontSize: 18,
-                    ), // Set text color to #971C1C
+                    ),
                   ),
                 ],
               ),
               style: ElevatedButton.styleFrom(
-                backgroundColor: Color(0xFFF9CC03), // Set button background color to #F9CC03
+                backgroundColor: Color(0xFFF9CC03),
                 padding: EdgeInsets.symmetric(vertical: 16.0),
               ),
             ),
           ),
         ),
-        SizedBox(width: 20), // Space between the buttons
+        SizedBox(width: 20),
         // Share Button
         IconButton(
           icon: CircleAvatar(
-            backgroundColor: Color(0xFFEBDED0), // Background color of the share button
-            radius: 30, // Adjust the radius as needed
+            backgroundColor: Color(0xFFEBDED0),
+            radius: 30,
             child: Image.asset(
-              'assets/share_icon.png', // Set your share icon image here
-              height: 24.0, // Set height of the icon
-              width: 24.0, // Set width of the icon
+              'assets/share_icon.png',
+              height: 24.0,
+              width: 24.0,
             ),
           ),
           onPressed: () {
-            // Implement your share functionality here
             Share.share('Check out this wallpaper: ${widget.imageUrl}');
           },
         ),
@@ -211,10 +226,10 @@ class _PhotoDetailScreenState extends State<PhotoDetailScreen> {
       onTapDown: (_) => _initCounter(),
       onTapUp: (_) => _stopCounter(),
       child: SizedBox(
-        width: 120.0, // Adjust the width as needed
+        width: 120.0,
         height: 60.0,
-        child: ConstrainedBox( // Wrap CustomPaint with ConstrainedBox
-          constraints: BoxConstraints.tightFor(width: 120.0, height: 60.0), // Set constraints
+        child: ConstrainedBox(
+          constraints: BoxConstraints.tightFor(width: 120.0, height: 60.0),
           child: CustomPaint(
             painter: _MyElevatedRoundedButtonPainter(
               (_progress / 1000) / _totalActionTimeInSeconds,
@@ -223,7 +238,7 @@ class _PhotoDetailScreenState extends State<PhotoDetailScreen> {
               child: Text(
                 'Downloading...',
                 style: TextStyle(
-                  color: Color(0xFF14AE5C), // Text color
+                  color: Color(0xFF14AE5C),
                   fontSize: 18,
                 ),
               ),
@@ -233,10 +248,7 @@ class _PhotoDetailScreenState extends State<PhotoDetailScreen> {
       ),
     );
   }
-
 }
-
-
 
 class _MyElevatedRoundedButtonPainter extends CustomPainter {
   const _MyElevatedRoundedButtonPainter(this.progress);
@@ -251,34 +263,34 @@ class _MyElevatedRoundedButtonPainter extends CustomPainter {
     paint.color = Colors.black.withOpacity(0.2);
     canvas.drawRRect(
       RRect.fromRectAndRadius(
-        Rect.fromLTRB(0.0, 6.0, size.width, size.height + 6.0), // Offset the shadow downwards
-        Radius.circular(30.0), // Rounded corners for shadow
+        Rect.fromLTRB(0.0, 6.0, size.width, size.height + 6.0),
+        Radius.circular(30.0),
       ),
       paint,
     );
 
     // Draw button background
-    paint.color = Colors.white; // Button color
+    paint.color = Colors.white;
     canvas.drawRRect(
       RRect.fromRectAndRadius(
-        Rect.fromLTRB(0.0, 0.0, size.width, size.height), // Regular position
-        Radius.circular(30.0), // Rounded corners for the button
+        Rect.fromLTRB(0.0, 0.0, size.width, size.height),
+        Radius.circular(30.0),
       ),
       paint,
     );
 
     // Draw progress bar with padding
-    double padding = 8.0; // Set the padding for the progress bar
+    double padding = 8.0;
     paint.color = Color(0xFFC7E7D6);
     canvas.drawRRect(
       RRect.fromRectAndRadius(
         Rect.fromLTRB(
-          padding, // Left padding
-          padding, // Top padding
-          (progress * (size.width - (2 * padding))), // Right edge with padding
-          size.height - padding, // Bottom edge with top padding
+          padding,
+          padding,
+          (progress * (size.width - (2 * padding))),
+          size.height - padding,
         ),
-        Radius.circular(30.0), // Rounded corners for the progress bar
+        Radius.circular(30.0),
       ),
       paint,
     );

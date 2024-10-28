@@ -3,7 +3,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:share_plus/share_plus.dart';
 import '../config.dart';
-import 'photo_detail_screen.dart';  // Import the new file
+import 'photo_detail_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   @override
@@ -45,33 +45,36 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
+    // Calculate screen width and height for responsive adjustments
+    final screenWidth = MediaQuery.of(context).size.width;
+    final screenHeight = MediaQuery.of(context).size.height;
+    final isLandscape = screenWidth > screenHeight;
+
     return Scaffold(
       backgroundColor: Color(0xFFFBF3EF),
       appBar: AppBar(
         forceMaterialTransparency: true,
-        toolbarHeight: 100,
-        leadingWidth: 120,
-        backgroundColor: Color(0xFFFBF3EF), // Set the app bar color
+        toolbarHeight: isLandscape ? 45: 65,
+        leadingWidth: isLandscape ? 65 : 85,
+        backgroundColor: Color(0xFFFBF3EF),
         elevation: 0,
         leading: Padding(
-          padding: const EdgeInsets.only(left: 8), // Reduced padding for larger icon
+          padding: const EdgeInsets.only(left: 8),
           child: Image.asset(
-            'assets/app_icon.png', // Replace with your app icon path
-            width: 52, // Larger icon width
-            height: 58, // Larger icon height
+            'assets/app_icon.png',
+            width: isLandscape ? 40 : 30,
+            height: isLandscape ? 44 : 58,
           ),
         ),
         actions: [
           IconButton(
-            icon:CircleAvatar(
-      backgroundColor: Color(0xFFEBDED0),
-        radius: 30, // Adjust the radius as needed
-        child: Image.asset('assets/share_icon.png'),
-      ) ,
+            icon: CircleAvatar(
+              backgroundColor: Color(0xFFEBDED0),
+              radius: isLandscape ? 25 : 30,
+              child: Image.asset('assets/share_icon.png'),
+            ),
             onPressed: () {
-              // Implement your share functionality here
               Share.share("Check out this awesome app: https://play.google.com/store/apps/details?id=com.yourcompany.yourapp");
-              // For example, you might use the share package to share the current content
             },
           ),
         ],
@@ -81,7 +84,7 @@ class _HomeScreenState extends State<HomeScreen> {
           : Column(
         children: [
           Padding(
-            padding: const EdgeInsets.all(16.0),
+            padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
             child: Row(
               children: [
                 RichText(
@@ -90,17 +93,17 @@ class _HomeScreenState extends State<HomeScreen> {
                       TextSpan(
                         text: 'Walls',
                         style: TextStyle(
-                          fontSize: 36,
+                          fontSize: isLandscape ? 28 : 36,
                           fontWeight: FontWeight.bold,
-                          color: Color(0xFFE5A219), // Color for "Wall"
+                          color: Color(0xFFE5A219),
                         ),
                       ),
                       TextSpan(
                         text: 'cartoon',
                         style: TextStyle(
-                          fontSize: 36,
+                          fontSize: isLandscape ? 28 : 36,
                           fontWeight: FontWeight.bold,
-                          color: Color(0xFF971C1C), // Color for "cartoon"
+                          color: Color(0xFF971C1C),
                         ),
                       ),
                     ],
@@ -111,12 +114,12 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
           Expanded(
             child: GridView.builder(
-              padding: EdgeInsets.all(8.0),
+              padding: EdgeInsets.symmetric(horizontal: isLandscape ? 8.0 : 16.0, vertical: 8.0),
               gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 2,
+                crossAxisCount: screenWidth < 600 ? 2 : screenWidth < 900 ? 3 : 4,
                 crossAxisSpacing: 8.0,
                 mainAxisSpacing: 8.0,
-                childAspectRatio: 2/3.5,
+                childAspectRatio: isLandscape ? 2 / 2.5 : 2 / 3.5,
               ),
               itemCount: _wallpaperUrls.length,
               itemBuilder: (context, index) {

@@ -43,7 +43,7 @@ class _FirstTimeScreenState extends State<FirstTimeScreen> {
 
                 // App Name
                 Text(
-                  'Wallscartoon',
+                  'Wallpaper Cartoon',
                   style: TextStyle(
                     fontSize: 36,
                     color: Colors.black,
