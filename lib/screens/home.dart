@@ -12,40 +12,70 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   final FirebaseStorage _storage = FirebaseStorage.instance;
+  final ScrollController _scrollController = ScrollController();
   List<String> _wallpaperUrls = [];
   bool _loading = true;
+  bool _isLoadingMore = false;
+  String? _lastFetchedItemToken;
+  static const int _fetchLimit = 10; // Number of items to load per page
 
   @override
   void initState() {
     super.initState();
     _fetchWallpapers();
+    _scrollController.addListener(_onScroll);
   }
 
   Future<void> _fetchWallpapers() async {
+    setState(() {
+      _isLoadingMore = true;
+    });
     try {
-      final ListResult result = await _storage.ref('wallpapers/').listAll();
-      final List<String> urls = [];
+      final ListResult result = await _storage
+          .ref('wallpapers/')
+          .list(ListOptions(
+        maxResults: _fetchLimit,
+        pageToken: _lastFetchedItemToken,
+      ));
 
+      // Fetch URLs for the new set of images
+      final List<String> urls = [];
       for (var ref in result.items) {
         final String url = await ref.getDownloadURL();
         urls.add(url);
       }
 
       setState(() {
-        _wallpaperUrls = urls;
+        _wallpaperUrls.addAll(urls);
+        _lastFetchedItemToken = result.nextPageToken;
         _loading = false;
+        _isLoadingMore = false;
       });
     } catch (e) {
       print("Error fetching wallpapers: $e");
       setState(() {
         _loading = false;
+        _isLoadingMore = false;
       });
     }
   }
 
+  void _onScroll() {
+    if (_scrollController.position.pixels >= _scrollController.position.maxScrollExtent - 200 &&
+        !_isLoadingMore &&
+        _lastFetchedItemToken != null) {
+      _fetchWallpapers();
+    }
+  }
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
-    // Calculate screen width and height for responsive adjustments
     final screenWidth = MediaQuery.of(context).size.width;
     final screenHeight = MediaQuery.of(context).size.height;
     final isLandscape = screenWidth > screenHeight;
@@ -54,7 +84,7 @@ class _HomeScreenState extends State<HomeScreen> {
       backgroundColor: Color(0xFFFBF3EF),
       appBar: AppBar(
         forceMaterialTransparency: true,
-        toolbarHeight: isLandscape ? 45: 65,
+        toolbarHeight: isLandscape ? 45 : 65,
         leadingWidth: isLandscape ? 65 : 85,
         backgroundColor: Color(0xFFFBF3EF),
         elevation: 0,
@@ -114,6 +144,7 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
           Expanded(
             child: GridView.builder(
+              controller: _scrollController,
               padding: EdgeInsets.symmetric(horizontal: isLandscape ? 8.0 : 16.0, vertical: 8.0),
               gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                 crossAxisCount: screenWidth < 600 ? 2 : screenWidth < 900 ? 3 : 4,
@@ -121,8 +152,12 @@ class _HomeScreenState extends State<HomeScreen> {
                 mainAxisSpacing: 8.0,
                 childAspectRatio: isLandscape ? 2 / 2.5 : 2 / 3.5,
               ),
-              itemCount: _wallpaperUrls.length,
+              itemCount: _wallpaperUrls.length + (_isLoadingMore ? 1 : 0),
               itemBuilder: (context, index) {
+                if (index == _wallpaperUrls.length) {
+                  return Center(child: CircularProgressIndicator());
+                }
+
                 return GestureDetector(
                   onTap: () {
                     Navigator.push(
