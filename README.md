@@ -10,7 +10,7 @@ Here are some screenshots of the WallCartoon app:
 | ![Splash Screen](splash.png) | ![Home Screen](home.png) |
 |:--:|:--:|
 | *Splash Screen* | *Home Screen* |
-| ![Wallpaper Detail](detail.png) |![Liked Screen](liked.png)|
+| ![Wallpaper Detail](download.png) |![Liked Screen](liked.png)|
 | *Wallpaper Detail view* | *Liked Screen* |
 ## Features
 
