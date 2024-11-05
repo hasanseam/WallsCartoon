@@ -1,12 +1,18 @@
-import 'package:download_wallpaper/screens/home.dart';
 import 'package:download_wallpaper/screens/first_time_screen.dart';
+import 'package:download_wallpaper/screens/home.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:firebase_app_check/firebase_app_check.dart';
 
-void main() async{
+import 'package:iconsax_plus/iconsax_plus.dart';
+
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
+  await FirebaseAppCheck.instance.activate(
+    androidProvider: AndroidProvider.playIntegrity,
+  );
   // Check if this is the user's first time
   final SharedPreferences prefs = await SharedPreferences.getInstance();
   bool isFirstTime = prefs.getBool('isFirstTime') ?? true;
@@ -17,34 +23,34 @@ class MyApp extends StatelessWidget {
   final bool isFirstTime;
   const MyApp({Key? key, required this.isFirstTime}) : super(key: key);
 
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Demo',
+      title: 'Wallpaper Cartoon',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
-        // This is the theme of your application.
-        //
-        // TRY THIS: Try running your application with "flutter run". You'll see
-        // the application has a purple toolbar. Then, without quitting the app,
-        // try changing the seedColor in the colorScheme below to Colors.green
-        // and then invoke "hot reload" (save your changes or press the "hot
-        // reload" button in a Flutter-supported IDE, or press "r" if you used
-        // the command line to start the app).
-        //
-        // Notice that the counter didn't reset back to zero; the application
-        // state is not lost during the reload. To reset the state, use hot
-        // restart instead.
-        //
-        // This works for code too, not just values: Most code changes can be
-        // tested with just a hot reload.
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
       ),
-      home:  isFirstTime ? FirstTimeScreen() : HomeScreen(),
+      home: Scaffold(
+        body: FutureBuilder(
+          future: _checkFirstTime(), // Custom method to check first time
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return Center(child: CircularProgressIndicator());
+            } else if (snapshot.hasError) {
+              return Center(child: Text('Error: ${snapshot.error}'));
+            } else {
+              return isFirstTime ? FirstTimeScreen() : HomeScreen();
+            }
+          },
+        ),
+      ),
     );
   }
+
+  Future<bool> _checkFirstTime() async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    return prefs.getBool('isFirstTime') ?? true;
+  }
 }
-
-

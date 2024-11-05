@@ -3,6 +3,9 @@ import 'package:fl_downloader/fl_downloader.dart';
 import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:share_plus/share_plus.dart';
+import 'package:iconsax_plus/iconsax_plus.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import '../color.dart';// Import the AppColors class
 
 class PhotoDetailScreen extends StatefulWidget {
   final String imageUrl;
@@ -18,6 +21,16 @@ class _PhotoDetailScreenState extends State<PhotoDetailScreen> {
   Timer? _timer;
   int _progress = 0;
   final int _totalActionTimeInSeconds = 3;
+
+  bool _isAdReady = false;
+
+  @override
+  void initState() {
+    super.initState();
+  }
+
+  // Show the interstitial ad if ready
+
 
   Future<void> _checkAndDownloadImage(String url) async {
     final permission = await FlDownloader.requestPermission();
@@ -37,6 +50,9 @@ class _PhotoDetailScreenState extends State<PhotoDetailScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Download completed!')),
         );
+
+        // Show the ad after download completes
+
       } catch (e) {
         debugPrint('Download failed: $e');
         ScaffoldMessenger.of(context).showSnackBar(
@@ -68,9 +84,25 @@ class _PhotoDetailScreenState extends State<PhotoDetailScreen> {
   void _stopCounter() {
     _timer?.cancel();
     setState(() {
-      _progress = 0; // Reset progress
-      _isDownloading = false; // Reset downloading state
+      _progress = 0;  // Reset progress
+      _isDownloading = false;  // Reset downloading state
     });
+  }
+
+  Future<void> _saveLikedWallpaper(String wallpaperName) async {
+    final prefs = await SharedPreferences.getInstance();
+    List<String> likedWallpapers = prefs.getStringList('likedWallpapers') ?? [];
+
+    if (!likedWallpapers.contains(wallpaperName)) {
+      likedWallpapers.add(wallpaperName);
+      await prefs.setStringList('likedWallpapers', likedWallpapers);
+    }
+  }
+
+  @override
+  void dispose() {
+    _timer?.cancel();
+    super.dispose();
   }
 
   @override
@@ -82,7 +114,6 @@ class _PhotoDetailScreenState extends State<PhotoDetailScreen> {
     return Scaffold(
       body: Stack(
         children: [
-          // Background image
           CachedNetworkImage(
             imageUrl: widget.imageUrl,
             placeholder: (context, url) => Center(child: CircularProgressIndicator()),
@@ -90,8 +121,9 @@ class _PhotoDetailScreenState extends State<PhotoDetailScreen> {
             fit: BoxFit.cover,
             height: double.infinity,
             width: double.infinity,
+            maxHeightDiskCache: 500,
+            maxWidthDiskCache: 500,
           ),
-          // Top gradient overlay
           Positioned.fill(
             child: Align(
               alignment: Alignment.topCenter,
@@ -112,7 +144,6 @@ class _PhotoDetailScreenState extends State<PhotoDetailScreen> {
               ),
             ),
           ),
-          // Bottom gradient overlay
           Positioned.fill(
             child: Align(
               alignment: Alignment.bottomCenter,
@@ -133,169 +164,122 @@ class _PhotoDetailScreenState extends State<PhotoDetailScreen> {
               ),
             ),
           ),
-          Positioned(
-            top: isLandscape ? 20 : 40,
-            left: 20,
-            child: IconButton(
-              icon: CircleAvatar(
-                backgroundColor: Color(0xFF74625E),
-                radius: 25,
-                child: Image.asset(
-                  'assets/arrow_icon.png',
-                  height: 24.0,
-                  width: 24.0,
+          if (!_isDownloading)
+            Positioned(
+              top: isLandscape ? 20 : 40,
+              left: 20,
+              child: IconButton(
+                icon: Icon(IconsaxPlusLinear.arrow_left_1, color: AppColors.secondaryColor),
+                onPressed: () {
+                  Navigator.pop(context);
+                },
+              ),
+            ),
+          if (!_isDownloading)
+            Positioned(
+              top: isLandscape ? 20 : 40,
+              right: 20,
+              child: IconButton(
+                icon: Icon(Icons.ios_share_sharp, color: AppColors.secondaryColor),
+                onPressed: () {
+                  Share.share("Check out this awesome app: https://play.google.com/store/apps/details?id=com.mdidet.wallscartoon");
+                },
+              ),
+            ),
+          // Show loading indicator when downloading, otherwise show buttons
+          if (_isDownloading)
+            Center(
+              child: Container(
+                width: MediaQuery.of(context).size.width * 0.11,  // 11% of screen width
+                height: MediaQuery.of(context).size.width * 0.11, // Maintain aspect ratio
+                child: CircularProgressIndicator(
+                  strokeWidth: 5.0, // Keep stroke width as is or adjust
+                  color: AppColors.secondaryColor,
+                  backgroundColor: AppColors.borderColor,
                 ),
               ),
-              onPressed: () {
-                Navigator.pop(context);
-              },
+            )
+          else
+            Positioned(
+              bottom: 30,  // Move download button slightly up
+              left: 20,
+              right: 20,
+              child: _buildButtons(screenSize),  // Show buttons when not downloading
             ),
-          ),
-          // Overlay with buttons
-          Positioned(
-            bottom: 20,
-            left: 20,
-            right: 20,
-            child: _isDownloading
-                ? _buildProgressButton() // Show progress button while downloading
-                : _buildButtons(screenSize), // Show buttons when not downloading
-          ),
         ],
       ),
     );
   }
 
   Widget _buildButtons(Size screenSize) {
+    final buttonWidth = screenSize.width * 0.6; // Adjust button width
+    final downloadIconSize = screenSize.width * 0.07; // Icon size for download button
+    final loveIconSize = screenSize.width * 0.05; // Slightly smaller icon size for love button
+    final fontSize = screenSize.width * 0.045; // Font size based on screen width
+    final buttonHeight = screenSize.height * 0.06; // Button height based on screen height
+
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         // Download Button
         Container(
-          width: screenSize.width * 0.6, // Responsive width
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20.0),
-            child: ElevatedButton(
-              onPressed: () => _checkAndDownloadImage(widget.imageUrl),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Image.asset(
-                    'assets/download_icon.png',
-                    height: 24.0,
-                    width: 24.0,
-                  ),
-                  SizedBox(width: 16.0),
-                  Text(
-                    'Download',
-                    style: TextStyle(
-                      color: Color(0xFF971C1C),
-                      fontSize: 18,
-                    ),
-                  ),
-                ],
+          width: buttonWidth,
+          height: buttonHeight,
+          child: ElevatedButton(
+            onPressed: () => _checkAndDownloadImage(widget.imageUrl),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppColors.borderColor, // Background color
+              padding: EdgeInsets.symmetric(vertical: buttonHeight * 0.2), // Responsive padding
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(buttonHeight * 0.5), // Rounded corners
+                side: BorderSide(
+                  color: AppColors.borderColor, // Border color
+                  width: 2.0,
+                ),
               ),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Color(0xFFF9CC03),
-                padding: EdgeInsets.symmetric(vertical: 16.0),
-              ),
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(Icons.save_alt_outlined,color: AppColors.primaryColor,),
+                SizedBox(width: screenSize.width * 0.02), // Responsive spacing
+                Text(
+                  'Download',
+                  style: TextStyle(
+                    color: AppColors.primaryColor,
+                    fontSize: fontSize,
+                  ),
+                ),
+              ],
             ),
           ),
         ),
-        SizedBox(width: 20),
-        // Share Button
-        IconButton(
-          icon: CircleAvatar(
-            backgroundColor: Color(0xFFEBDED0),
-            radius: 30,
-            child: Image.asset(
-              'assets/share_icon.png',
-              height: 24.0,
-              width: 24.0,
-            ),
+        SizedBox(width: screenSize.width * 0.04),  // Responsive spacing between buttons
+
+        // Circular Love Button with Border
+        Container(
+          width: buttonHeight,
+          height: buttonHeight,
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            border: Border.all(color: AppColors.borderColor, width: 2.0), // Border color
           ),
-          onPressed: () {
-            Share.share('Check out this wallpaper: ${widget.imageUrl}');
-          },
+          child: IconButton(
+            icon: Icon(
+              Icons.favorite_outline,
+              color: AppColors.backgroundColor, // Icon color
+            ),
+            // Add functionality for the love
+            onPressed:() async {
+              await _saveLikedWallpaper(widget.imageUrl); // Pass actual wallpaper name
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(content: Text('Wallpaper added to liked wallpapers!')),
+              );
+            },
+
+          ),
         ),
       ],
     );
   }
-
-  Widget _buildProgressButton() {
-    return GestureDetector(
-      onTapDown: (_) => _initCounter(),
-      onTapUp: (_) => _stopCounter(),
-      child: SizedBox(
-        width: 120.0,
-        height: 60.0,
-        child: ConstrainedBox(
-          constraints: BoxConstraints.tightFor(width: 120.0, height: 60.0),
-          child: CustomPaint(
-            painter: _MyElevatedRoundedButtonPainter(
-              (_progress / 1000) / _totalActionTimeInSeconds,
-            ),
-            child: Center(
-              child: Text(
-                'Downloading...',
-                style: TextStyle(
-                  color: Color(0xFF14AE5C),
-                  fontSize: 18,
-                ),
-              ),
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class _MyElevatedRoundedButtonPainter extends CustomPainter {
-  const _MyElevatedRoundedButtonPainter(this.progress);
-
-  final double progress;
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    final Paint paint = Paint();
-
-    // Draw shadow
-    paint.color = Colors.black.withOpacity(0.2);
-    canvas.drawRRect(
-      RRect.fromRectAndRadius(
-        Rect.fromLTRB(0.0, 6.0, size.width, size.height + 6.0),
-        Radius.circular(30.0),
-      ),
-      paint,
-    );
-
-    // Draw button background
-    paint.color = Colors.white;
-    canvas.drawRRect(
-      RRect.fromRectAndRadius(
-        Rect.fromLTRB(0.0, 0.0, size.width, size.height),
-        Radius.circular(30.0),
-      ),
-      paint,
-    );
-
-    // Draw progress bar with padding
-    double padding = 8.0;
-    paint.color = Color(0xFFC7E7D6);
-    canvas.drawRRect(
-      RRect.fromRectAndRadius(
-        Rect.fromLTRB(
-          padding,
-          padding,
-          (progress * (size.width - (2 * padding))),
-          size.height - padding,
-        ),
-        Radius.circular(30.0),
-      ),
-      paint,
-    );
-  }
-
-  @override
-  bool shouldRepaint(_MyElevatedRoundedButtonPainter oldDelegate) => this.progress != oldDelegate.progress;
 }
