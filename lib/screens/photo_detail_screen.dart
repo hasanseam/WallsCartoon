@@ -2,15 +2,17 @@ import 'dart:async';
 import 'package:fl_downloader/fl_downloader.dart';
 import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+//import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:share_plus/share_plus.dart';
-import 'package:iconsax_plus/iconsax_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../color.dart';// Import the AppColors class
 
+
 class PhotoDetailScreen extends StatefulWidget {
   final String imageUrl;
+  final Function() ? onLiked;
 
-  PhotoDetailScreen({Key? key, required this.imageUrl}) : super(key: key);
+  PhotoDetailScreen({Key? key, required this.imageUrl, this.onLiked}) : super(key: key);
 
   @override
   _PhotoDetailScreenState createState() => _PhotoDetailScreenState();
@@ -18,19 +20,81 @@ class PhotoDetailScreen extends StatefulWidget {
 
 class _PhotoDetailScreenState extends State<PhotoDetailScreen> {
   bool _isDownloading = false;
+  bool _isLiked = false; // Track if the wallpaper is liked
   Timer? _timer;
   int _progress = 0;
   final int _totalActionTimeInSeconds = 3;
 
+  //InterstitialAd? _interstitialAd;
   bool _isAdReady = false;
 
   @override
   void initState() {
     super.initState();
+    //loadInterstitialAd();  // Load the interstitial ad when screen initializes
+    _checkIfLiked();  // Check if the wallpaper is liked when the screen loads
   }
 
-  // Show the interstitial ad if ready
+  // Load the interstitial ad
+  /*void loadInterstitialAd() {
+    InterstitialAd.load(
+      adUnitId: '//////////////////////////////////////',  // Your Interstitial Ad Unit ID
+      request: AdRequest(),
+      adLoadCallback: InterstitialAdLoadCallback(
+        onAdLoaded: (InterstitialAd ad) {
+          _interstitialAd = ad;
+          _isAdReady = true;
+        },
+        onAdFailedToLoad: (LoadAdError error) {
+          print('InterstitialAd failed to load: $error');
+          _isAdReady = false;
+        },
+      ),
+    );
+  }*/
 
+  // Show the interstitial ad if ready
+  /*void showInterstitialAd() {
+    if (_isAdReady && _interstitialAd != null) {
+      _interstitialAd!.show();
+      _interstitialAd = null;  // Reset ad after showing
+      _isAdReady = false;
+      loadInterstitialAd();  // Preload the next ad
+    }
+  }*/
+
+  Future<void> _checkIfLiked() async {
+    final prefs = await SharedPreferences.getInstance();
+    List<String> likedWallpapers = prefs.getStringList('likedWallpapers') ?? [];
+
+    // Check if the current wallpaper is in the liked list
+    setState(() {
+      _isLiked = likedWallpapers.contains(widget.imageUrl);
+    });
+  }
+
+  Future<void> _saveLikedWallpaper() async {
+    final prefs = await SharedPreferences.getInstance();
+    List<String> likedWallpapers = prefs.getStringList('likedWallpapers') ?? [];
+
+    if (_isLiked) {
+      // Remove the wallpaper from the liked list
+      likedWallpapers.remove(widget.imageUrl);
+      await prefs.setStringList('likedWallpapers', likedWallpapers);
+    } else {
+      // Add the wallpaper to the liked list
+      likedWallpapers.add(widget.imageUrl);
+      await prefs.setStringList('likedWallpapers', likedWallpapers);
+    }
+
+    // Toggle the liked state
+    setState(() {
+      _isLiked = !_isLiked;
+    });
+
+    widget.onLiked?.call();
+
+  }
 
   Future<void> _checkAndDownloadImage(String url) async {
     final permission = await FlDownloader.requestPermission();
@@ -52,7 +116,7 @@ class _PhotoDetailScreenState extends State<PhotoDetailScreen> {
         );
 
         // Show the ad after download completes
-
+        //showInterstitialAd();
       } catch (e) {
         debugPrint('Download failed: $e');
         ScaffoldMessenger.of(context).showSnackBar(
@@ -89,18 +153,9 @@ class _PhotoDetailScreenState extends State<PhotoDetailScreen> {
     });
   }
 
-  Future<void> _saveLikedWallpaper(String wallpaperName) async {
-    final prefs = await SharedPreferences.getInstance();
-    List<String> likedWallpapers = prefs.getStringList('likedWallpapers') ?? [];
-
-    if (!likedWallpapers.contains(wallpaperName)) {
-      likedWallpapers.add(wallpaperName);
-      await prefs.setStringList('likedWallpapers', likedWallpapers);
-    }
-  }
-
   @override
   void dispose() {
+   // _interstitialAd?.dispose();
     _timer?.cancel();
     super.dispose();
   }
@@ -124,6 +179,11 @@ class _PhotoDetailScreenState extends State<PhotoDetailScreen> {
             maxHeightDiskCache: 500,
             maxWidthDiskCache: 500,
           ),
+          // Dim the screen when downloading
+          if (_isDownloading)
+            Container(
+              color: Colors.black.withOpacity(0.65), // Dimmed layer
+            ),
           Positioned.fill(
             child: Align(
               alignment: Alignment.topCenter,
@@ -167,9 +227,9 @@ class _PhotoDetailScreenState extends State<PhotoDetailScreen> {
           if (!_isDownloading)
             Positioned(
               top: isLandscape ? 20 : 40,
-              left: 20,
+              left: 10,
               child: IconButton(
-                icon: Icon(IconsaxPlusLinear.arrow_left_1, color: AppColors.secondaryColor),
+                icon: Icon(Icons.arrow_back_ios_new_rounded, color: AppColors.likeBorderColor(context), size: 28,),
                 onPressed: () {
                   Navigator.pop(context);
                 },
@@ -178,9 +238,9 @@ class _PhotoDetailScreenState extends State<PhotoDetailScreen> {
           if (!_isDownloading)
             Positioned(
               top: isLandscape ? 20 : 40,
-              right: 20,
+              right: 10,
               child: IconButton(
-                icon: Icon(Icons.ios_share_sharp, color: AppColors.secondaryColor),
+                icon: Icon(Icons.ios_share_rounded, color: AppColors.likeBorderColor(context), size: 28,),
                 onPressed: () {
                   Share.share("Check out this awesome app: https://play.google.com/store/apps/details?id=com.mdidet.wallscartoon");
                 },
@@ -190,12 +250,12 @@ class _PhotoDetailScreenState extends State<PhotoDetailScreen> {
           if (_isDownloading)
             Center(
               child: Container(
-                width: MediaQuery.of(context).size.width * 0.11,  // 11% of screen width
-                height: MediaQuery.of(context).size.width * 0.11, // Maintain aspect ratio
+                width: MediaQuery.of(context).size.width * 0.16,  // 11% of screen width
+                height: MediaQuery.of(context).size.width * 0.16, // Maintain aspect ratio
                 child: CircularProgressIndicator(
-                  strokeWidth: 5.0, // Keep stroke width as is or adjust
-                  color: AppColors.secondaryColor,
-                  backgroundColor: AppColors.borderColor,
+                    strokeWidth: 5.0, // Keep stroke width as is or adjust
+                    color: AppColors.secondaryColor(context),
+                    backgroundColor: AppColors.borderColor(context).withOpacity(0.2)
                 ),
               ),
             )
@@ -212,7 +272,7 @@ class _PhotoDetailScreenState extends State<PhotoDetailScreen> {
   }
 
   Widget _buildButtons(Size screenSize) {
-    final buttonWidth = screenSize.width * 0.6; // Adjust button width
+    final buttonWidth = screenSize.width * 0.4; // Adjust button width
     final downloadIconSize = screenSize.width * 0.07; // Icon size for download button
     final loveIconSize = screenSize.width * 0.05; // Slightly smaller icon size for love button
     final fontSize = screenSize.width * 0.045; // Font size based on screen width
@@ -228,12 +288,12 @@ class _PhotoDetailScreenState extends State<PhotoDetailScreen> {
           child: ElevatedButton(
             onPressed: () => _checkAndDownloadImage(widget.imageUrl),
             style: ElevatedButton.styleFrom(
-              backgroundColor: AppColors.borderColor, // Background color
+              backgroundColor: AppColors.borderColor(context), // Background color
               padding: EdgeInsets.symmetric(vertical: buttonHeight * 0.2), // Responsive padding
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(buttonHeight * 0.5), // Rounded corners
                 side: BorderSide(
-                  color: AppColors.borderColor, // Border color
+                  color: AppColors.borderColor(context), // Border color
                   width: 2.0,
                 ),
               ),
@@ -241,12 +301,12 @@ class _PhotoDetailScreenState extends State<PhotoDetailScreen> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Icon(Icons.save_alt_outlined,color: AppColors.primaryColor,),
+                Icon(Icons.save_alt_outlined,color: AppColors.primaryColor(context),),
                 SizedBox(width: screenSize.width * 0.02), // Responsive spacing
                 Text(
                   'Download',
                   style: TextStyle(
-                    color: AppColors.primaryColor,
+                    color: AppColors.primaryColor(context),
                     fontSize: fontSize,
                   ),
                 ),
@@ -262,24 +322,19 @@ class _PhotoDetailScreenState extends State<PhotoDetailScreen> {
           height: buttonHeight,
           decoration: BoxDecoration(
             shape: BoxShape.circle,
-            border: Border.all(color: AppColors.borderColor, width: 2.0), // Border color
+            color: _isLiked ? AppColors.likeBorderColor(context) : Colors.transparent, // Background color when liked
+            border: Border.all(color: AppColors.likeBorderColor(context), width: 2.0), // Border color
           ),
           child: IconButton(
             icon: Icon(
-              Icons.favorite_outline,
-              color: AppColors.backgroundColor, // Icon color
+              _isLiked ? Icons.favorite : Icons.favorite_outline, // Toggle the icon
+              color: _isLiked ? AppColors.likeColor(context) : AppColors.likeBorderColor(context), // Icon color when liked
             ),
-            // Add functionality for the love
-            onPressed:() async {
-              await _saveLikedWallpaper(widget.imageUrl); // Pass actual wallpaper name
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text('Wallpaper added to liked wallpapers!')),
-              );
-            },
-
+            onPressed: _saveLikedWallpaper, // Toggle the liked state
           ),
         ),
       ],
     );
   }
 }
+
